@@ -1,0 +1,61 @@
+{% load static %}
+<!--↑staticディレクトリに格納した静的ファイルを読み込みするときは必ず指定-->
+
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>スケジューラー</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{% static 'scheduler/css/style.css' %}">
+</head>
+<body>
+    <h1 class="bg-primary text-center text-white">スケジューラー</h1>
+
+    <main class="container">
+
+        <form method="POST">
+            <!--↓POST文実行時はCSRF対策のため必ず指定-->
+            {% csrf_token %}
+            <!--POST文を送信した際、name属性を元にviews.pyが参照を行う-->
+            <input class="form-control" name="deadline" type="datetime-local" value="2020-12-06 11:30:00">
+            <textarea class="form-control" name="task" placeholder="ここにやることを書く" rows="3"></textarea>
+            <input class="form-control" type="submit" value="送信">
+        </form>
+
+        <!--↓テンプレートタグで繰り返し処理、条件分岐を行うことが可能(P74)-->
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="thead-light">
+                    <tr><th><div>日時</div></th><th><div>内容</div></th><th style="white-space:nowrap;"><div>削除</div></th></tr>
+                </thead>
+                <tbody class="border">
+                    <!--↓テンプレート変数(p70)-->
+                    {% for content in data %}
+                    <tr><td style="white-space:nowrap;"><div>{{ content.deadline }}</div></td><td><div>{{ content.task }}</div></td>
+                        <td style="white-space:nowrap;">
+                            <div>
+                                <!-- ↓ urls.pyでURLが delete/ と定義したビューにPOST文を送る-->
+                                <form action="{% url 'scheduler:delete' %}" method="post">
+                                    {% csrf_token %}
+                                    <button class="btn btn-outline-danger" name="id" value="{{ content.id }}">削除</button>
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+    </main>
+
+
+</body>
+</html>
+
